@@ -1,18 +1,25 @@
 from flask import Flask, render_template_string, request
 import requests
 import os
+import sys
 
 app = Flask(_name_)
 
-PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "1129592466895716")
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAZBhfdICW3wBRadZCeOQJLk24FLnEmvWYLZArOGT5FilVxnrUwaUOnNtv2APqSMhzzSlAzNX8aGwQ8ZChgKAT5pblcGGyhDbzXmr0MFOo9oPTdeRhEHcdwK1B8onjCszHbSEHCROy4kM9I3BD2IYMnHgdPqVnGTNO0eihu3qwzD0AcyJQFwCCOq92MAvatbZADsH0IU1T3ZAeb49BikZBSiD3zIv0BjMSfw5ZBo7jOUkP4hjCI0Tmx4JdXRT1NcnoUYDinRsgq8eQ5WVUe25wZDZD")
+# Variables de entorno (obligatorias)
+PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID")
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 
+# Si faltan, mostramos error en los logs y salimos
+if not PHONE_NUMBER_ID or not ACCESS_TOKEN:
+    print("ERROR: Faltan variables de entorno PHONE_NUMBER_ID o ACCESS_TOKEN")
+    sys.exit(1)
+
+# Lista de vecinos (solo tu número para prueba)
 VECINOS = [
     "5492634613018",
 ]
 
-HTML = """
-<!DOCTYPE html>
+HTML = """<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -83,8 +90,7 @@ HTML = """
         };
     </script>
 </body>
-</html>
-"""
+</html>"""
 
 @app.route('/')
 def index():
@@ -102,12 +108,13 @@ def timbre():
             r = requests.post(url, headers=headers, json=data, timeout=5)
             if r.status_code == 200:
                 exitosos += 1
-        except:
-            pass
+        except Exception as e:
+            print(f"Error enviando a {numero}: {e}")
     if exitosos == len(VECINOS):
         return {"mensaje": f"✅ Aviso enviado a {exitosos} vecino"}
     else:
         return {"mensaje": f"⚠️ Enviado a {exitosos} de {len(VECINOS)}"}, 500
 
 if _name_ == '_main_':
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
