@@ -4,30 +4,11 @@ import os
 
 app = Flask(__name__)
 
-# ==================================================
-# DATOS DE WHATSAPP (COMPLETADOS)
-# ==================================================
 PHONE_NUMBER_ID = "1129592466895716"
-ACCESS_TOKEN = "EAAZBhfdICW3wBRadZCeOQJLk24FLnEmvWYLZArOGT5FilVxnrUwaUOnNtv2APqSMhzzSlAzNX8aGwQ8ZChgKAT5pblcGGyhDbzXmr0MFOo9oPTdeRhEHcdwK1B8onjCszHbSEHCROy4kM9I3BD2IYMnHgdPqVnGTNO0eihu3qwzD0AcyJQFwCCOq92MAvatbZADsH0IU1T3ZAeb49BikZBSiD3zIv0BjMSfw5ZBo7jOUkP4hjCI0Tmx4JdXRT1NcnoUYDinRsgq8eQ5WVUe25wZDZD"
+ACCESS_TOKEN = "EAAZBhfdICW3wBRUKnQwG6Vuy6X3vCuzIOgWMW33pAV2hW7vG4RSZC96YfBFw5U5X1Gfp4YlSpNYlZBUaPlTcKssvqZBctJXhSny6YNWvCvika2gOx096qqOxD0XnaWiuSppQFtZAKcC5eUZBMCyBEZCoBAm5q3Pn4IJHq8gLtLiOnbj3zQ5gLFXycCd9fsbw2HZC0xl7vgNOvlZAFjXnP9ZBFXaWtBjX84gL6hZBiR2qvT8oBcLuNMGgzZAeu3nIiGm5cdYnCH665Is1dac4f9ZAnhQZDZD"
 
-# ==================================================
-# TUS VECINOS (LOS 8 NÚMEROS)
-# ==================================================
-VECINOS = [
-    "5492634613018",   # Tu número
-    "5492612059752",   # Beatriz
-    "5492616051927",   # Grace
-    "5492616643045",   # Laura
-    "5492615522955",   # Marcela
-    "5492613054790",   # Xenia
-    "5492614698268",   # Mario
-    "5492613057947",   # Sonia
-    "5492616170950",   # Franco
-]
+VECINOS = ["5492634613018"]
 
-# ==================================================
-# PÁGINA WEB (HTML, CSS, JS)
-# ==================================================
 HTML = """
 <!DOCTYPE html>
 <html>
@@ -85,7 +66,7 @@ HTML = """
             estado.style.display = 'block';
             estado.style.background = '#FFF3CD';
             estado.style.color = '#856404';
-            estado.textContent = 'Enviando aviso a los vecinos...';
+            estado.textContent = 'Enviando...';
             try {
                 const r = await fetch('/timbre');
                 const d = await r.json();
@@ -93,10 +74,10 @@ HTML = """
                 estado.style.background = r.ok ? '#D4EDDA' : '#F8D7DA';
                 estado.style.color = r.ok ? '#155724' : '#721C24';
             } catch(e) {
-                estado.textContent = 'Error de conexión';
+                estado.textContent = 'Error';
                 estado.style.background = '#F8D7DA';
             }
-            setTimeout(() => { btn.disabled = false; }, 4000);
+            setTimeout(() => { btn.disabled = false; }, 3000);
         };
     </script>
 </body>
@@ -110,31 +91,18 @@ def index():
 @app.route('/timbre')
 def timbre():
     url = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    mensaje = "🔔 AVISO: Alguien está en la puerta del edificio"
-    
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"}
+    mensaje = "🔔 AVISO: Alguien está en la puerta"
     exitosos = 0
     for numero in VECINOS:
-        data = {
-            "messaging_product": "whatsapp",
-            "to": numero,
-            "type": "text",
-            "text": {"body": mensaje}
-        }
+        data = {"messaging_product": "whatsapp", "to": numero, "type": "text", "text": {"body": mensaje}}
         try:
             r = requests.post(url, headers=headers, json=data, timeout=5)
             if r.status_code == 200:
                 exitosos += 1
-        except Exception as e:
-            print(f"Error con {numero}: {e}")
-    
-    if exitosos == len(VECINOS):
-        return {"mensaje": f"✅ Aviso enviado a los {exitosos} vecinos"}
-    else:
-        return {"mensaje": f"⚠️ Aviso enviado a {exitosos} de {len(VECINOS)} vecinos"}, 500
+        except:
+            pass
+    return {"mensaje": f"✅ Enviado a {exitosos}"}
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
