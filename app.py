@@ -5,13 +5,13 @@ import os
 app = Flask(__name__)
 
 # ==================================================
-# DATOS DE WHATSAPP (COMPLETADOS CORRECTAMENTE)
+# DATOS DE WHATSAPP (COMPLETADOS)
 # ==================================================
 PHONE_NUMBER_ID = "1129592466895716"
 ACCESS_TOKEN = "EAAZBhfdICW3wBRadZCeOQJLk24FLnEmvWYLZArOGT5FilVxnrUwaUOnNtv2APqSMhzzSlAzNX8aGwQ8ZChgKAT5pblcGGyhDbzXmr0MFOo9oPTdeRhEHcdwK1B8onjCszHbSEHCROy4kM9I3BD2IYMnHgdPqVnGTNO0eihu3qwzD0AcyJQFwCCOq92MAvatbZADsH0IU1T3ZAeb49BikZBSiD3zIv0BjMSfw5ZBo7jOUkP4hjCI0Tmx4JdXRT1NcnoUYDinRsgq8eQ5WVUe25wZDZD"
 
 # ==================================================
-# LISTA DE VECINOS (LOS 8 NÚMEROS)
+# TUS VECINOS (LOS 8 NÚMEROS)
 # ==================================================
 VECINOS = [
     "5492634613018",   # Tu número
@@ -21,7 +21,8 @@ VECINOS = [
     "5492615522955",   # Marcela
     "5492613054790",   # Xenia
     "5492614698268",   # Mario
-    "5492613057947"    # Sonia
+    "5492613057947",   # Sonia
+    "5492616170950",   # Franco
 ]
 
 # ==================================================
@@ -84,7 +85,7 @@ HTML = """
             estado.style.display = 'block';
             estado.style.background = '#FFF3CD';
             estado.style.color = '#856404';
-            estado.textContent = 'Enviando aviso...';
+            estado.textContent = 'Enviando aviso a los vecinos...';
             try {
                 const r = await fetch('/timbre');
                 const d = await r.json();
@@ -95,7 +96,7 @@ HTML = """
                 estado.textContent = 'Error de conexión';
                 estado.style.background = '#F8D7DA';
             }
-            setTimeout(() => { btn.disabled = false; }, 3000);
+            setTimeout(() => { btn.disabled = false; }, 4000);
         };
     </script>
 </body>
@@ -113,7 +114,8 @@ def timbre():
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
-    mensaje = "🔔 AVISO: Alguien está en la puerta"
+    mensaje = "🔔 AVISO: Alguien está en la puerta del edificio"
+    
     exitosos = 0
     for numero in VECINOS:
         data = {
@@ -126,9 +128,13 @@ def timbre():
             r = requests.post(url, headers=headers, json=data, timeout=5)
             if r.status_code == 200:
                 exitosos += 1
-        except:
-            pass
-    return {"mensaje": f"✅ Aviso enviado a {exitosos} de {len(VECINOS)} vecinos"}
+        except Exception as e:
+            print(f"Error con {numero}: {e}")
+    
+    if exitosos == len(VECINOS):
+        return {"mensaje": f"✅ Aviso enviado a los {exitosos} vecinos"}
+    else:
+        return {"mensaje": f"⚠️ Aviso enviado a {exitosos} de {len(VECINOS)} vecinos"}, 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
