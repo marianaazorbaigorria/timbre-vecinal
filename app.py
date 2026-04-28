@@ -4,9 +4,13 @@ import os
 
 app = Flask(__name__)
 
+# ==================================================
+# DATOS QUE FUNCIONARON EN EL PANEL DE META
+# ==================================================
 PHONE_NUMBER_ID = "1129592466895716"
 ACCESS_TOKEN = "EAAZBhfdICW3wBRUKnQwG6Vuy6X3vCuzIOgWMW33pAV2hW7vG4RSZC96YfBFw5U5X1Gfp4YlSpNYlZBUaPlTcKssvqZBctJXhSny6YNWvCvika2gOx096qqOxD0XnaWiuSppQFtZAKcC5eUZBMCyBEZCoBAm5q3Pn4IJHq8gLtLiOnbj3zQ5gLFXycCd9fsbw2HZC0xl7vgNOvlZAFjXnP9ZBFXaWtBjX84gL6hZBiR2qvT8oBcLuNMGgzZAeu3nIiGm5cdYnCH665Is1dac4f9ZAnhQZDZD"
 
+# ==================================================
 VECINOS = ["5492634613018"]
 
 HTML = """
@@ -100,8 +104,8 @@ def timbre():
             r = requests.post(url, headers=headers, json=data, timeout=5)
             if r.status_code == 200:
                 exitosos += 1
-        except:
-            pass
+        except Exception as e:
+            print(f"Error con {numero}: {e}")
     return {"mensaje": f"✅ Enviado a {exitosos}"}
 
 if __name__ == '__main__':
